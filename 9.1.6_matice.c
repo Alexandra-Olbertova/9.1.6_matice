@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<math.h>
+#include <errno.h>
 
 #define ELEM(mat,i,j) (mat->elem[(mat->cols)*i+j])
 
@@ -26,6 +27,36 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 	}
 	return mat;	
 }
+
+MAT *mat_create_by_file(char *filename){
+	
+	char type[2];
+	unsigned int rowcol[2];
+	
+	MAT *matNew;
+	FILE *f; 
+	
+	matNew = NULL;
+
+	f = fopen(filename, "r");
+	if(f == NULL){
+		printf("%s", strerror(errno));
+		return NULL;
+	}
+	
+	fread(type, sizeof(char), 2, f);
+	fread(rowcol, sizeof(unsigned int), 2, f);
+	
+	matNew = mat_create_with_type(rowcol[0],rowcol[1]);
+	matNew->elem = (float*)malloc(sizeof(float)*rowcol[0]*rowcol[1]);
+	
+	fread(matNew->elem, sizeof(float), rowcol[0]*rowcol[1], f);
+	
+	return matNew;
+}
+
+// char mat_save(MAT *mat,char *filename)
+
 
 void mat_destroy(MAT *mat){
 	free(mat->elem);
@@ -101,6 +132,15 @@ main(){
 	mat_create_random_increasing(mat);
 	mat_print(mat);
 	printf("\n");
+	
+	MAT *mat2;
+	char filename[50] = {"filename.bin"};
+
+	mat2 = mat_create_by_file(filename);
+	mat_print(mat2);
+	
+	mat_destroy(mat);
+	mat_destroy(mat2);	
 }
 
 

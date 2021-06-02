@@ -36,8 +36,6 @@ MAT *mat_create_by_file(char *filename){
 	MAT *matNew;
 	FILE *f; 
 	
-	matNew = NULL;
-
 	f = fopen(filename, "r");
 	if(f == NULL){
 		printf("%s", strerror(errno));
@@ -55,9 +53,32 @@ MAT *mat_create_by_file(char *filename){
 	return matNew;
 }
 
-// char mat_save(MAT *mat,char *filename)
-
-
+char mat_save(MAT *mat,char *filename){
+	
+	char type[2];
+	unsigned int rowcol[2];
+	
+	FILE *f;
+	
+	f = fopen(filename,"w");
+	if(f == NULL){
+		printf("%s", strerror(errno));
+		return;
+	}
+	
+	rowcol[0] = mat->rows;
+	rowcol[1] = mat->cols;
+	
+	fwrite("M1", sizeof(char), 2, f);
+	fwrite(rowcol, sizeof(unsigned int), 2, f);
+	fwrite(mat->elem, sizeof(float), rowcol[0]*rowcol[1], f);
+	
+	if(fclose(f) == EOF){
+		printf("Unable to close file\n");
+		return;
+	}
+}
+	
 void mat_destroy(MAT *mat){
 	free(mat->elem);
 	free(mat);
@@ -133,13 +154,14 @@ main(){
 	mat_print(mat);
 	printf("\n");
 	
+	mat_destroy(mat);
+	
 	MAT *mat2;
 	char filename[50] = {"filename.bin"};
 
 	mat2 = mat_create_by_file(filename);
 	mat_print(mat2);
-	
-	mat_destroy(mat);
+
 	mat_destroy(mat2);	
 }
 

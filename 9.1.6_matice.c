@@ -113,7 +113,7 @@ void mat_print(MAT *mat){
 	
 	for(i = 0; i < mat->rows; i++){
 		for(j = 0; j < mat->cols; j++){
-			printf("%02.2f ", ELEM(mat,i,j));
+			printf("%02.2f \t", ELEM(mat,i,j));
 		}
 		printf("\n");
 	}
@@ -122,34 +122,54 @@ void mat_print(MAT *mat){
 void mat_create_random_increasing(MAT *mat){
 	
 	int i,j;
-	int x;
+	int x, y, xx;
 	
 	srand(time(0));
 	
 	x = (rand()%200)-100;
-	
+	xx = x;
+
 	for(i = 0; i < mat->rows; i++){
-		for(j = 0; j < mat->cols; j++){
+		ELEM(mat,i,0) = xx;
+		for(j = 1; j < mat->cols; j++){
+			
+			if(i == 0){
+				ELEM(mat,i,j) = x;
+				x += (rand()%200);
+				}
+						
+			else{
+				if(ELEM(mat,i-1,j) < ELEM(mat,i,j-1))
+					y = ELEM(mat,i,j-1);
+				else 
+					y = ELEM(mat,i-1,j);
+				
+				x = y + (rand()%200);
+				ELEM(mat,i,j) = x;
 		
-			ELEM(mat,i,j) = x;
-			x += (rand()%200);
+			}		
 		}
+		
+		xx += (rand()%200);
 	}
 }
 
 main(){
 	MAT *mat;
 	
-	mat = mat_create_with_type(3,3);
+	mat = mat_create_with_type(4,4);
 
+	printf("Diagonal\n");
 	mat_unit(mat);
 	mat_print(mat);
 	printf("\n");
 	
+	printf("Random\n");
 	mat_random(mat);
 	mat_print(mat);
 	printf("\n");
 	
+	printf("Random increasing\n");
 	mat_create_random_increasing(mat);
 	mat_print(mat);
 	printf("\n");

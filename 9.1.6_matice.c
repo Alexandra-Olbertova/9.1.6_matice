@@ -179,6 +179,8 @@ main(){
 	MAT *mat2;
 	char filename[50] = {"filename.bin"};
 
+   	mat_save(mat, filename);
+   	
 	mat2 = mat_create_by_file(filename);
 	mat_print(mat2);
 

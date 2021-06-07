@@ -131,13 +131,13 @@ void mat_create_random_increasing(MAT *mat){
 
 	for(i = 0; i < mat->rows; i++){
 		ELEM(mat,i,0) = xx;
+		
 		for(j = 1; j < mat->cols; j++){
 			
 			if(i == 0){
 				ELEM(mat,i,j) = x;
 				x += (rand()%200);
 				}
-						
 			else{
 				if(ELEM(mat,i-1,j) < ELEM(mat,i,j-1))
 					y = ELEM(mat,i,j-1);
@@ -157,7 +157,7 @@ void mat_create_random_increasing(MAT *mat){
 main(){
 	MAT *mat;
 	
-	mat = mat_create_with_type(4,4);
+	mat = mat_create_with_type(3,7);
 
 	printf("Diagonal\n");
 	mat_unit(mat);

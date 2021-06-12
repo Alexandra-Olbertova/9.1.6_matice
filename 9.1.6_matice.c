@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include<math.h>
+#include <fcntl.h>
 #include <errno.h>
 
 #define ELEM(mat,i,j) (mat->elem[(mat->cols)*i+j])
@@ -21,7 +22,7 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 	mat->rows = rows;
 	mat->elem = (float*)malloc(sizeof(float)*rows*cols);
 	
-	if (mat->elem == NULL){
+	if (mat == NULL || mat->elem == NULL){
 		free(mat);
 		return NULL;
 	}
@@ -34,21 +35,27 @@ MAT *mat_create_by_file(char *filename){
 	unsigned int rowcol[2];
 	
 	MAT *matNew;
-	FILE *f; 
 	
-	f = fopen(filename, "r");
-	if(f == NULL){
+	int f = open(filename, O_RDONLY);
+	
+	if(f < 0){
 		printf("%s", strerror(errno));
 		return NULL;
 	}
 	
-	fread(type, sizeof(char), 2, f);
-	fread(rowcol, sizeof(unsigned int), 2, f);
+	read(f, type, 2);
+	
+	if(type[0] != 'M' && type[1] != '1'){
+		printf("%s", strerror(errno));
+		return NULL;
+	}
+	
+	read(f, rowcol, 2);
 	
 	matNew = mat_create_with_type(rowcol[0],rowcol[1]);
 	matNew->elem = (float*)malloc(sizeof(float)*rowcol[0]*rowcol[1]);
 	
-	fread(matNew->elem, sizeof(float), rowcol[0]*rowcol[1], f);
+	read(f, matNew->elem, rowcol[0]*rowcol[1]);
 	
 	return matNew;
 }
@@ -58,10 +65,9 @@ char mat_save(MAT *mat,char *filename){
 	char type[2];
 	unsigned int rowcol[2];
 	
-	FILE *f;
+	int f = open(filename, O_RDWR);
 	
-	f = fopen(filename,"w");
-	if(f == NULL){
+	if(f < 0){
 		printf("%s", strerror(errno));
 		return;
 	}
@@ -69,11 +75,11 @@ char mat_save(MAT *mat,char *filename){
 	rowcol[0] = mat->rows;
 	rowcol[1] = mat->cols;
 	
-	fwrite("M1", sizeof(char), 2, f);
-	fwrite(rowcol, sizeof(unsigned int), 2, f);
-	fwrite(mat->elem, sizeof(float), rowcol[0]*rowcol[1], f);
+	write(f, "M1", 2);
+	write(f, rowcol, 2);
+	write(f, mat->elem, rowcol[0]*rowcol[1]);
 	
-	if(fclose(f) == EOF){
+	if(close(f) == EOF){
 		printf("Unable to close file\n");
 		return;
 	}
@@ -99,8 +105,7 @@ void mat_unit(MAT *mat){
 
 void mat_random(MAT *mat){
 	unsigned int i,j;
-	
-	srand(time(0));
+
 	for(i = 0; i < mat->rows; i++){
 		for(j = 0; j < mat->cols; j++){
 			ELEM(mat,i,j) = -1+(float)rand()/(float)(RAND_MAX)*2;
@@ -124,40 +129,37 @@ void mat_create_random_increasing(MAT *mat){
 	int i,j;
 	int x, y, xx;
 	
-	srand(time(0));
-	
 	x = (rand()%200)-100;
 	xx = x;
 
-	for(i = 0; i < mat->rows; i++){
+	for(j = 0; j < mat->cols; j++){
+		
+		ELEM(mat,0,j) = x;
+		x += (rand()%200);
+	}
+
+	for(i = 1; i < mat->rows; i++){
+		
+		xx += (rand()%200);
 		ELEM(mat,i,0) = xx;
 		
 		for(j = 1; j < mat->cols; j++){
-			
-			if(i == 0){
-				ELEM(mat,i,j) = x;
-				x += (rand()%200);
-				}
-			else{
-				if(ELEM(mat,i-1,j) < ELEM(mat,i,j-1))
-					y = ELEM(mat,i,j-1);
-				else 
-					y = ELEM(mat,i-1,j);
-				
-				x = y + (rand()%200);
-				ELEM(mat,i,j) = x;
-		
-			}		
-		}
-		
-		xx += (rand()%200);
-	}
+
+			if(ELEM(mat,i-1,j) < ELEM(mat,i,j-1))
+				ELEM(mat,i,j) = ELEM(mat,i,j-1)+ (rand()%200);
+			else 
+				ELEM(mat,i,j) = ELEM(mat,i-1,j) + (rand()%200);
+	
+		}		
+	}		
 }
 
 main(){
+	srand(time(0));
+	
 	MAT *mat;
 	
-	mat = mat_create_with_type(3,7);
+	mat = mat_create_with_type(3,4);
 
 	printf("Diagonal\n");
 	mat_unit(mat);
@@ -174,17 +176,17 @@ main(){
 	mat_print(mat);
 	printf("\n");
 	
-	mat_destroy(mat);
+//	mat_destroy(mat);
 	
-	MAT *mat2;
-	char filename[50] = {"filename.bin"};
+//	MAT *mat2;
+//	char filename[50] = {"filename.bin"};
 
-   	mat_save(mat, filename);
+//	mat_save(mat, filename);
    	
-	mat2 = mat_create_by_file(filename);
-	mat_print(mat2);
+//	mat2 = mat_create_by_file(filename);
+//	mat_print(mat2);
 
-	mat_destroy(mat2);	
+//	mat_destroy(mat2);	
 }
 
 

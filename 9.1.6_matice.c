@@ -6,8 +6,6 @@
 
 #define ELEM(mat,i,j) (mat->elem[(mat->cols)*i+j])
 #define FAIL 0
-#define SUCCESS 1
-
 
 typedef struct{
 	unsigned int rows;

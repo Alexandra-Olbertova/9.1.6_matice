@@ -77,7 +77,7 @@ char mat_save(MAT *mat, char *filename){
 	char type[2];
 	unsigned int rowcol[2];
 	
-	int f = open(filename, O_RDWR);
+	int f = open(filename, O_WRONLY);
 	
 	if(f < 0){
 		return;

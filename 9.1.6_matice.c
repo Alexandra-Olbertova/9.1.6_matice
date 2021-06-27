@@ -68,6 +68,8 @@ MAT *mat_create_by_file(char *filename){
 	}
 	
 	read(f, matNew->elem, rowcol[0]*rowcol[1]);
+	if(read == NULL)
+		return FAIL;
 	
 	return matNew;
 }
@@ -86,7 +88,7 @@ char mat_save(MAT *mat, char *filename){
 	rowcol[0] = mat->rows;
 	rowcol[1] = mat->cols;
 	
-	write(f, "M1", 2);
+	write(f, "M1\n", 2);
 	if(write == NULL)
 		return FAIL;
 		
@@ -150,7 +152,7 @@ void mat_create_random_increasing(MAT *mat){
 	int x, y, xx;
 	
 	x = (rand()%200)-100;
-	xx = x;
+	xx = x; 
 
 	for(i = 0; i < mat->rows; i++){
 				
@@ -203,7 +205,6 @@ main(){
 	printf("\n");
 	
 	mat_destroy(mat);
-	mat_save(mat,"filename2.bin");
 	
 //	MAT *mat2;
 //	char filename[50] = {"filename.bin"};

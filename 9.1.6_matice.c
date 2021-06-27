@@ -47,16 +47,15 @@ MAT *mat_create_by_file(char *filename){
 		return NULL;
 	}
 	
-	read(f, type, 2);
-	if(read == NULL)
+	
+	if(read(f, type, 2) < 0)
 		return FAIL;
 	
 	if(type[0] != 'M' && type[1] != '1'){
 		return NULL;
 	}
 	
-	read(f, rowcol, 2);
-	if(read == NULL)
+	if(read(f, rowcol, 2) < 0)
 		return FAIL;
 	
 	matNew = mat_create_with_type(rowcol[0],rowcol[1]);
@@ -66,9 +65,8 @@ MAT *mat_create_by_file(char *filename){
 		free(matNew->elem);
 		return NULL;
 	}
-	
-	read(f, matNew->elem, rowcol[0]*rowcol[1]);
-	if(read == NULL)
+
+	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0)
 		return FAIL;
 	
 	return matNew;
@@ -88,16 +86,14 @@ char mat_save(MAT *mat, char *filename){
 	rowcol[0] = mat->rows;
 	rowcol[1] = mat->cols;
 	
-	write(f, "M1\n", 2);
-	if(write == NULL)
+
+	if(write(f, "M1\n", 2) < 0)
 		return FAIL;
-		
-	write(f, rowcol, 2);
-	if(write == NULL)
+
+	if(write(f, rowcol, 2) < 0)
 		return FAIL;
-		
-	write(f, mat->elem, rowcol[0]*rowcol[1]);
-	if(write == NULL)
+
+	if(write(f, mat->elem, rowcol[0]*rowcol[1]) < 0)
 		return FAIL;
 		
 	if(close(f) == EOF){
@@ -203,8 +199,11 @@ main(){
 	mat_create_random_increasing(mat);
 	mat_print(mat);
 	printf("\n");
-	
+    
+	mat_save(mat, "filename.bin");
+		
 	mat_destroy(mat);
+
 	
 //	MAT *mat2;
 //	char filename[50] = {"filename.bin"};

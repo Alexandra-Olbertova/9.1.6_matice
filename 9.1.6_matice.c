@@ -19,7 +19,6 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 	mat = (MAT*)malloc(sizeof(float)*rows*cols);
 	
 	if(mat == NULL){
-		free(mat);
 		return NULL;
 	}
 	

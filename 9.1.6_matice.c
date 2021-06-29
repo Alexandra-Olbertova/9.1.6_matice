@@ -94,14 +94,20 @@ char mat_save(MAT *mat, char *filename){
 	rowcol[1] = mat->cols;
 	
 
-	if(write(f, "M1\n", 2) < 0)
+	if(write(f, "M1\n", 2) < 0){
+		close(f);
 		return FAIL;
+	}
 
-	if(write(f, rowcol, 2) < 0)
+	if(write(f, rowcol, 2) < 0){
+		close(f);
 		return FAIL;
+	}
 
-	if(write(f, mat->elem, rowcol[0]*rowcol[1]) < 0)
+	if(write(f, mat->elem, rowcol[0]*rowcol[1]) < 0){
+		close(f);
 		return FAIL;
+	}
 		
 	if(close(f) == EOF){
 		return FAIL;

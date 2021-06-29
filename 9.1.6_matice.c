@@ -68,6 +68,10 @@ MAT *mat_create_by_file(char *filename){
 	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0)
 		return FAIL;
 	
+	if(close(f) == EOF){
+		return FAIL;
+	}
+	
 	return matNew;
 }
 

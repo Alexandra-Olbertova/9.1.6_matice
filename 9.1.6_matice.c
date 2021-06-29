@@ -66,13 +66,6 @@ MAT *mat_create_by_file(char *filename){
 		close(f);
 		return FAIL;
 	}
-	matNew->elem = (float*)malloc(sizeof(float)*rowcol[0]*rowcol[1]);
-	
-	if(matNew->elem == NULL){
-		free(matNew->elem);
-		close(f);
-		return FAIL;
-	}
 
 	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0){
 		close(f);

@@ -47,26 +47,37 @@ MAT *mat_create_by_file(char *filename){
 	}
 	
 	
-	if(read(f, type, 2) < 0)
+	if(read(f, type, 2) < 0){
+		close(f);
 		return FAIL;
-	
-	if(type[0] != 'M' && type[1] != '1'){
-		return NULL;
 	}
 	
-	if(read(f, rowcol, 2) < 0)
+	if(type[0] != 'M' && type[1] != '1'){
+		close(f);
 		return FAIL;
+	}
 	
-	matNew = mat_create_with_type(rowcol[0],rowcol[1]);
+	if(read(f, rowcol, 2) < 0){
+		close(f);
+		return FAIL;
+	}
+	
+	if((matNew = mat_create_with_type(rowcol[0],rowcol[1])) == NULL){
+		close(f);
+		return FAIL;
+	}
 	matNew->elem = (float*)malloc(sizeof(float)*rowcol[0]*rowcol[1]);
 	
 	if(matNew->elem == NULL){
 		free(matNew->elem);
-		return NULL;
+		close(f);
+		return FAIL;
 	}
 
-	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0)
+	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0){
+		close(f);
 		return FAIL;
+	}
 	
 	if(close(f) == EOF){
 		return FAIL;

@@ -1,11 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#include <unistd.h>
+#include<math.h>
 #include <fcntl.h>
 
 #define ELEM(mat,i,j) (mat->elem[(mat->cols)*i+j])
-#define FAIL 0
 
 typedef struct{
 	unsigned int rows;
@@ -19,8 +18,10 @@ MAT *mat_create_with_type(unsigned int rows, unsigned int cols){
 	mat = (MAT*)malloc(sizeof(float)*rows*cols);
 	
 	if(mat == NULL){
+		free(mat);
 		return NULL;
 	}
+	
 	
 	mat->cols = cols;
 	mat->rows = rows;
@@ -46,45 +47,33 @@ MAT *mat_create_by_file(char *filename){
 		return NULL;
 	}
 	
-	
-	if(read(f, type, 2) < 0){
-		close(f);
-		return FAIL;
-	}
+	read(f, type, 2);
 	
 	if(type[0] != 'M' && type[1] != '1'){
-		close(f);
-		return FAIL;
+		return NULL;
 	}
 	
-	if(read(f, rowcol, 2) < 0){
-		close(f);
-		return FAIL;
+	read(f, rowcol, 2);
+	
+	matNew = mat_create_with_type(rowcol[0],rowcol[1]);
+	matNew->elem = (float*)malloc(sizeof(float)*rowcol[0]*rowcol[1]);
+	
+	if(matNew->elem == NULL){
+		free(matNew->elem);
+		return NULL;
 	}
 	
-	if((matNew = mat_create_with_type(rowcol[0],rowcol[1])) == NULL){
-		close(f);
-		return FAIL;
-	}
-
-	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0){
-		close(f);
-		return FAIL;
-	}
-	
-	if(close(f) == EOF){
-		return FAIL;
-	}
+	read(f, matNew->elem, rowcol[0]*rowcol[1]);
 	
 	return matNew;
 }
 
-char mat_save(MAT *mat, char *filename){
+char mat_save(MAT *mat,char *filename){
 	
 	char type[2];
 	unsigned int rowcol[2];
 	
-	int f = open(filename, O_WRONLY);
+	int f = open(filename, O_RDWR);
 	
 	if(f < 0){
 		return;
@@ -93,24 +82,12 @@ char mat_save(MAT *mat, char *filename){
 	rowcol[0] = mat->rows;
 	rowcol[1] = mat->cols;
 	
-
-	if(write(f, "M1\n", 2) < 0){
-		close(f);
-		return FAIL;
-	}
-
-	if(write(f, rowcol, 2*sizeof(unsigned int)) < 0){
-		close(f);
-		return FAIL;
-	}
-
-	if(write(f, mat->elem, rowcol[0]*rowcol[1]) < 0){
-		close(f);
-		return FAIL;
-	}
-		
+	write(f, "M1", 2);
+	write(f, rowcol, 2);
+	write(f, mat->elem, rowcol[0]*rowcol[1]);
+	
 	if(close(f) == EOF){
-		return FAIL;
+		return;
 	}
 	
 	return f;	
@@ -161,7 +138,7 @@ void mat_create_random_increasing(MAT *mat){
 	int x, y, xx;
 	
 	x = (rand()%200)-100;
-	xx = x; 
+	xx = x;
 
 	for(i = 0; i < mat->rows; i++){
 				
@@ -212,16 +189,17 @@ main(){
 	mat_create_random_increasing(mat);
 	mat_print(mat);
 	printf("\n");
-    
-//	mat_save(mat, "filename.bin");
-		
-//	mat_destroy(mat);
-
 	
-	mat = mat_create_by_file("filename.bin");
-	mat_print(mat);
-//	mat_save(mat2, filename);
-//
+//	mat_destroy(mat);
+	
+//	MAT *mat2;
+	char filename[50] = {"filename.bin"};
+
+	mat_save(mat, filename);
+   	
+//	mat2 = mat_create_by_file(filename);
+//	mat_print(mat2);
+
 //	mat_destroy(mat2);	
 }
 

@@ -57,7 +57,7 @@ MAT *mat_create_by_file(char *filename){
 		return FAIL;
 	}
 	
-	if(read(f, rowcol, 2) < 0){
+	if(read(f, rowcol, 2*sizeof(unsigned int)) < 0){
 		close(f);
 		return FAIL;
 	}
@@ -67,7 +67,7 @@ MAT *mat_create_by_file(char *filename){
 		return FAIL;
 	}
 
-	if(read(f, matNew->elem, rowcol[0]*rowcol[1]) < 0){
+	if(read(f, matNew->elem, 4*matNew->rows*matNew->cols) < 0){
 		close(f);
 		return FAIL;
 	}
@@ -104,7 +104,7 @@ char mat_save(MAT *mat, char *filename){
 		return FAIL;
 	}
 
-	if(write(f, mat->elem, rowcol[0]*rowcol[1]) < 0){
+	if(write(f, mat->elem, 4*mat->rows*mat->cols) < 0){
 		close(f);
 		return FAIL;
 	}
@@ -213,15 +213,16 @@ main(){
 	mat_print(mat);
 	printf("\n");
     
-//	mat_save(mat, "filename.bin");
+	mat_save(mat, "filename.bin");
 		
-//	mat_destroy(mat);
+	mat_destroy(mat);
 
 	
 	mat = mat_create_by_file("filename.bin");
 	mat_print(mat);
-//	mat_save(mat2, filename);
-//
-//	mat_destroy(mat2);	
+//	mat_save(mat, filename);
+
+//  mat_destroy(mat);
+
 }
 

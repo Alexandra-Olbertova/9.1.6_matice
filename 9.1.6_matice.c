@@ -67,7 +67,7 @@ MAT *mat_create_by_file(char *filename){
 		return FAIL;
 	}
 
-	if(read(f, matNew->elem, 4*matNew->rows*matNew->cols) < 0){
+	if(read(f, matNew->elem, sizeof(float)*matNew->rows*matNew->cols) < 0){
 		close(f);
 		return FAIL;
 	}
@@ -104,7 +104,7 @@ char mat_save(MAT *mat, char *filename){
 		return FAIL;
 	}
 
-	if(write(f, mat->elem, 4*mat->rows*mat->cols) < 0){
+	if(write(f, mat->elem, sizeof(float)*mat->rows*mat->cols) < 0){
 		close(f);
 		return FAIL;
 	}
@@ -220,6 +220,7 @@ main(){
 	
 	mat = mat_create_by_file("filename.bin");
 	mat_print(mat);
+    exit(1);
 //	mat_save(mat, filename);
 
 //  mat_destroy(mat);
